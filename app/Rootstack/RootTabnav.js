@@ -324,11 +324,11 @@ function SwipeMealsScreenTabs() {
       >
         <MealsTabs.Screen
           name="ShortTime Job"
-          component={SwipeMealsUpcomingScreen}
+          component={SwipeMealsPastScreen}
         />
         <MealsTabs.Screen
           name="Longtime Job"
-          component={SwipeMealsPastScreen}
+          component={SwipeMealsUpcomingScreen}
         />
       </MealsTabs.Navigator>
     </>

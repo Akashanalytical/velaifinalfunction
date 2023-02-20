@@ -122,12 +122,18 @@ const Sign = () => {
     { label: "Remote", value: "Remote" },
     { label: "offline", value: "offline" },
   ]);
+  //hour
+  const [houropen, sethouropen] = useState(false);
+  const [hourvalue, sethourvalue] = useState(false);
+  const [hour, sethour] = useState([
+    { label: "/ Month", value: "Month" },
+    { label: "/LPA", value: "/LPA" },
+  ]);
   //duration
   const [durationopen, setdurationopen] = useState(false);
   const [durationvalue, setdurationvalue] = useState(false);
   const [duration, setduration] = useState([
-    { label: "1-10days", value: "1-10days" },
-    { label: "11-30days", value: "11-30days" },
+    { label: "Internships", value: "Internships" },
     { label: "1-6months", value: "1-6months" },
     { label: "7-12months", value: "7-12months" },
     { label: "Permanent", value: "Permanent" },
@@ -341,20 +347,63 @@ const Sign = () => {
             )}
           />
         </View>
-        <Controller
-          name="Salary"
-          defaultValue=""
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={styles.input}
-              selectionColor={"#5188E3"}
-              placeholder="Salary"
-              onChangeText={onChange}
-              value={value}
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
+          <View>
+            <Controller
+              name="Salary"
+              defaultValue=""
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, { width: 200 }]}
+                  selectionColor={"#5188E3"}
+                  placeholder="Salary"
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
-          )}
-        />
+          </View>
+          <View>
+            <Controller
+              name="per"
+              defaultValue=""
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <View style={styles.dropdownCompany}>
+                  <DropDownPicker
+                    style={[styles.dropdown, { width: 120 }]}
+                    open={houropen}
+                    value={hourvalue} //companyValue
+                    items={hour}
+                    setOpen={sethouropen}
+                    setValue={sethourvalue}
+                    setItems={sethour}
+                    placeholder="/Month"
+                    dropDownContainerStyle={{
+                      position: "relative", // to fix scroll issue ... it is by default 'absolute'
+                      top: 0, //to fix gap between label box and container
+                    }}
+                    placeholderStyle={[styles.placeholderStyles]}
+                    containerStyle={{ zIndex: 50, width: 120 }}
+                    loading={loading}
+                    listMode="SCROLLVIEW"
+                    activityIndicatorColor="#5188E3"
+                    searchable={true}
+                    searchPlaceholder="Set duration here..."
+                    onOpen={ondurationOpen}
+                    onChangeValue={onChange}
+                  />
+                </View>
+              )}
+            />
+          </View>
+          <View></View>
+        </View>
         <Controller
           name="Education"
           defaultValue=""

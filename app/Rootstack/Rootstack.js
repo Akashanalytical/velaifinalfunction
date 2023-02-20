@@ -63,7 +63,7 @@ function Root() {
   };
   return (
     <NavigationContainer theme={MyTheme}>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="botnav">
         <Stack.Screen
           name="botnav"
           component={BottomTAb}

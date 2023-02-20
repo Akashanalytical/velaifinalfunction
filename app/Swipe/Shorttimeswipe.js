@@ -34,6 +34,7 @@ import { Transitioning, Transition } from "react-native-reanimated";
 import { TouchableOpacity, TouchableHighlight } from "react-native";
 import { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { isLoading } from "expo-font";
 
 const { height, width } = Dimensions.get("window");
 
@@ -78,12 +79,42 @@ export default function ShorttimeSwiperCard({ route }) {
   const navigation = useNavigation();
 
   const [index, setIndex] = React.useState(0);
-  const [data, setData] = useState({});
+  const [isliked, setisliked] = useState(false);
+  const [likedpost, setlikedpost] = useState([]);
+  const [data, setData] = useState([]);
   const [postId, setpostId] = useState({});
   const [address, setaddress] = useState(null);
   const [loading, setloading] = useState(true);
   const [search, setSearch] = useState("");
+  //to set the liked post
 
+  //to get the API
+  async function fetchdata(paras1, paras2) {
+    const body = {};
+    body.s_id = paras2;
+    body.user_id = paras1;
+    console.log(body);
+    try {
+      await fetch("http://192.168.1.5:5000/api/s_like_details", {
+        method: "post", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("immmmm");
+          console.log(result);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
   //getting a user Location takes time so i need to wait so i make a async function
   const getPermission = async () => {
     //we use foreround permission for gettin Permission inside the app
@@ -168,9 +199,13 @@ export default function ShorttimeSwiperCard({ route }) {
     getdata();
     getJobs();
   }, []);
+
+  // useEffect(() => {
+  //   setisliked(!isliked);
+  // }, [isliked]);
   const getdata = async () => {
     try {
-      await fetch("http://192.168.1.5:5000/api/poster/show", {
+      await fetch("http://192.168.1.5:5000/api/s_apply_check/4", {
         method: "GET",
         mode: "cors",
         cache: "no-cache",
@@ -182,8 +217,8 @@ export default function ShorttimeSwiperCard({ route }) {
         .then((response) => response.json())
         .then((result) => {
           console.log("post result");
-          console.log(result);
-          setData(result);
+          console.log(result["short"]);
+          setData(result["short"]);
           setloading(false);
         });
     } catch (error) {
@@ -219,19 +254,32 @@ export default function ShorttimeSwiperCard({ route }) {
   const getCOntent = () => {
     return <ActivityIndicator size="larger" />;
   };
+  const handleLikeButtonPress = (card) => {
+    const newCards = data.map((c) => {
+      if (c.id === card.id) {
+        fetchdata(4, card.id);
+        console.log(card);
+        return { ...c, liked: c.liked == "true" ? "false" : "true" };
+      } else {
+        return c;
+      }
+    });
+    setData(newCards);
+  };
+
   const onSwiped = () => {
     transitionRef.current.animateNextTransition();
     setIndex(Math.floor(Math.random() * data.length - 1) + 1);
   };
   const Card = ({ card }) => {
     if (loading) {
-      console.log(loading);
       return (
         <View>
           <Text>Loading..</Text>
         </View>
       );
     }
+
     return (
       <Animated.ScrollView
         vertical={true}
@@ -251,7 +299,7 @@ export default function ShorttimeSwiperCard({ route }) {
               }}
             >
               <Text style={{ color: "#333", fontWeight: "700", fontSize: 25 }}>
-                {data[index].job}
+                {data[index].job_title}
               </Text>
               {/* <Text style={{ color: "#333" }}>
                 <SimpleLineIcons
@@ -277,7 +325,20 @@ export default function ShorttimeSwiperCard({ route }) {
               >
                 {/* <FontAwesome name="rupee" size={16} color="#000000" />
                 {data[index].payment} */}
-                <AntDesign name="hearto" size={34} color="black" />
+                <TouchableOpacity
+                  onPress={() => {
+                    handleLikeButtonPress(data[index]);
+                    console.log("im at the like ", data[index].liked);
+                  }}
+                >
+                  {data[index].liked == "true" ? (
+                    <AntDesign name="heart" size={24} color="black" />
+                  ) : (
+                    <AntDesign name="hearto" size={24} color="black" />
+                  )}
+
+                  {/* <AntDesign name="hearto" size={34} color="black" /> */}
+                </TouchableOpacity>
               </Text>
               {/* <Text
                 style={{ color: "#000000", fontSize: 15, fontWeight: "600" }}
@@ -302,8 +363,8 @@ export default function ShorttimeSwiperCard({ route }) {
               </Text> */}
               <FontAwesome name="share-alt" size={34} color="#333" />
             </View>
-            <View style={{}}>
-              {data[index].post_pic === null ? (
+            <View>
+              {data[index].pic === null ? (
                 <Image
                   source={{
                     uri: "https://images.pexels.com/photos/442559/pexels-photo-442559.jpeg?auto=compress&cs=tinysrgb&w=600",
@@ -322,7 +383,7 @@ export default function ShorttimeSwiperCard({ route }) {
               ) : (
                 <Image
                   source={{
-                    uri: data[index].post_pic,
+                    uri: data[index].pic,
                   }}
                   style={{
                     height: 250,
@@ -361,22 +422,41 @@ export default function ShorttimeSwiperCard({ route }) {
                 >
                   {t("posted")}
                 </Text>
-                <Image
-                  source={{
-                    uri: "https://images.pexels.com/photos/442559/pexels-photo-442559.jpeg?auto=compress&cs=tinysrgb&w=600",
-                  }}
-                  style={{
-                    backgroundColor: "purple",
-                    width: 55,
-                    height: 55,
-                    marginTop: 25,
+                {data[index].profilepic === null ? (
+                  <Image
+                    source={{
+                      uri: "https://images.pexels.com/photos/442559/pexels-photo-442559.jpeg?auto=compress&cs=tinysrgb&w=600",
+                    }}
+                    style={{
+                      backgroundColor: "purple",
+                      width: 55,
+                      height: 55,
+                      marginTop: 25,
 
-                    borderRadius: 50,
-                    resizeMode: "cover",
-                    borderColor: "#6BC3FF",
-                    borderWidth: 1,
-                  }}
-                />
+                      borderRadius: 50,
+                      resizeMode: "cover",
+                      borderColor: "#6BC3FF",
+                      borderWidth: 1,
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={{
+                      uri: data[index].profilepic,
+                    }}
+                    style={{
+                      backgroundColor: "purple",
+                      width: 55,
+                      height: 55,
+                      marginTop: 25,
+
+                      borderRadius: 50,
+                      resizeMode: "stretch",
+                      borderColor: "#6BC3FF",
+                      borderWidth: 1,
+                    }}
+                  />
+                )}
               </View>
               <View
                 style={{
@@ -397,18 +477,21 @@ export default function ShorttimeSwiperCard({ route }) {
                       alignContent: "center",
                     }}
                   >
-                    {data[index].first_name}
+                    {data[index].username}
                   </Text>
-                  <Text> Former</Text>
+                  <Text> {data[index].job_title}</Text>
                 </View>
-
-                <Text
-                  style={{
-                    marginTop: -15,
-                  }}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("messagefake")}
                 >
-                  <AntDesign name="message1" size={40} color="black" />
-                </Text>
+                  <Text
+                    style={{
+                      marginTop: -15,
+                    }}
+                  >
+                    <AntDesign name="message1" size={40} color="black" />
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
             <LinearGradient colors={["#e9eef0", "#e9eef0"]}>
@@ -454,7 +537,7 @@ export default function ShorttimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        Rs.1000/day
+                        {data[index].Salary}/{data[index].per}
                       </Text>
                     </View>
                     <View
@@ -477,30 +560,7 @@ export default function ShorttimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        5 Days
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        marginBottom: 10,
-                        width: 150,
-                        alignContent: "center",
-                      }}
-                    >
-                      <SimpleLineIcons
-                        name="graduation"
-                        size={24}
-                        color="#333"
-                      />
-                      <Text
-                        style={{
-                          marginLeft: 10,
-                          fontSize: 13,
-                          fontWeight: "400",
-                        }}
-                      >
-                        Non-Mandatory
+                        {data[index].time}
                       </Text>
                     </View>
                   </View>
@@ -531,7 +591,7 @@ export default function ShorttimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        Adyar, Chennai
+                        {data[index].location}
                       </Text>
                     </View>
                     <View
@@ -556,29 +616,6 @@ export default function ShorttimeSwiperCard({ route }) {
                         }}
                       >
                         2.5 Km
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "center",
-                        width: 180,
-                        marginBottom: 10,
-                      }}
-                    >
-                      <MaterialCommunityIcons
-                        name="bag-personal-outline"
-                        size={20}
-                        color="#333"
-                      />
-                      <Text
-                        style={{
-                          marginLeft: 10,
-                          fontSize: 13,
-                          fontWeight: "400",
-                        }}
-                      >
-                        Fresher
                       </Text>
                     </View>
                   </View>
@@ -643,7 +680,7 @@ export default function ShorttimeSwiperCard({ route }) {
                       color: "#626262",
                     }}
                   >
-                    {data[index].Description}
+                    {data[index].description}
                   </Text>
                   <View style={{ flex: 1, marginTop: 5 }}>
                     <Image

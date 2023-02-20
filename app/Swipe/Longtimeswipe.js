@@ -170,7 +170,7 @@ export default function LongtimeSwiperCard({ route }) {
   }, []);
   const getdata = async () => {
     try {
-      await fetch("http://192.168.1.5:5000/api/poster/show", {
+      await fetch("http://192.168.1.5:5000/api/l_apply_check/1", {
         method: "GET",
         mode: "cors",
         cache: "no-cache",
@@ -183,7 +183,7 @@ export default function LongtimeSwiperCard({ route }) {
         .then((result) => {
           console.log("post result");
           console.log(result);
-          setData(result);
+          setData(result["long"]);
           setloading(false);
         });
     } catch (error) {
@@ -251,7 +251,7 @@ export default function LongtimeSwiperCard({ route }) {
               }}
             >
               <Text style={{ color: "#333", fontWeight: "700", fontSize: 25 }}>
-                {data[index].job}
+                {data[index].job_title}
               </Text>
               {/* <Text style={{ color: "#333" }}>
                 <SimpleLineIcons
@@ -303,7 +303,7 @@ export default function LongtimeSwiperCard({ route }) {
               <FontAwesome name="share-alt" size={34} color="#333" />
             </View>
             <View style={{}}>
-              {data[index].post_pic === null ? (
+              {data[index].pic === null ? (
                 <Image
                   source={{
                     uri: "https://images.pexels.com/photos/442559/pexels-photo-442559.jpeg?auto=compress&cs=tinysrgb&w=600",
@@ -322,7 +322,7 @@ export default function LongtimeSwiperCard({ route }) {
               ) : (
                 <Image
                   source={{
-                    uri: data[index].post_pic,
+                    uri: data[index].pic,
                   }}
                   style={{
                     height: 250,
@@ -397,9 +397,9 @@ export default function LongtimeSwiperCard({ route }) {
                       alignContent: "center",
                     }}
                   >
-                    {data[index].first_name}
+                    {data[index].username}
                   </Text>
-                  <Text> Former</Text>
+                  <Text> {data[index].username}</Text>
                 </View>
 
                 <Text
@@ -454,7 +454,7 @@ export default function LongtimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        Rs.1000/day
+                        {/* {data} */}
                       </Text>
                     </View>
                     <View
@@ -477,7 +477,7 @@ export default function LongtimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        5 Days
+                        {data[index].Duration}
                       </Text>
                     </View>
                     <View
@@ -500,7 +500,7 @@ export default function LongtimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        Non-Mandatory
+                        {data[index].Education}
                       </Text>
                     </View>
                   </View>
@@ -531,7 +531,7 @@ export default function LongtimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        Adyar, Chennai
+                        {data[index].location}
                       </Text>
                     </View>
                     <View
@@ -643,7 +643,7 @@ export default function LongtimeSwiperCard({ route }) {
                       color: "#626262",
                     }}
                   >
-                    {data[index].Description}
+                    {data[index].job_description}
                   </Text>
                   <View style={{ flex: 1, marginTop: 5 }}>
                     <Image

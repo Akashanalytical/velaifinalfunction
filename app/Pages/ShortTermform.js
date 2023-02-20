@@ -353,7 +353,21 @@ const ShortTermForms = () => {
           </View>
           <View></View>
         </View>
-
+        <Controller
+          name="description"
+          defaultValue=""
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[styles.input, { textAlignVertical: "top", height: 100 }]}
+              selectionColor={"#5188E3"}
+              placeholder="Job Description"
+              onChangeText={onChange}
+              numberOfLines={4}
+              value={value}
+            />
+          )}
+        />
         <Text style={{ marginHorizontal: 10, color: "#333" }}> Add Image</Text>
         <TouchableOpacity
           onPress={() => {
