@@ -31,6 +31,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { useContext } from "react";
 import { useCallback } from "react";
+import { useReducer } from "react";
+import { useMemo } from "react";
+import { AUthReducer } from "../Authreducer";
+import { Inital_State } from "../Authreducer";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PhoneInput from "react-native-phone-number-input";
@@ -41,13 +45,31 @@ import { LinearGradient } from "expo-linear-gradient";
 import OtpScreen from "./Otpscreen";
 import OTPInput from "../components/otp/otpInput";
 import * as ImagePicker from "expo-image-picker";
-import { LocalizationContext } from "../../App";
+import { AuthContext, LocalizationContext } from "../../App";
 import { number } from "yup";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { Button } from "react-native-paper";
 export default function Userprofile({ navigation }) {
-  const { t, language, setlanguage } = useContext(LocalizationContext);
+  const { t, language, setlanguage, setuserdetails } =
+    useContext(LocalizationContext);
+  // const [state, dispatch] = useReducer(AUthReducer, Inital_State);
+
+  // const memoziedState = useMemo(() => state, [state]);
+  // const { state, dispatch } = useContext(AuthContext);
+  const { state, dispatch } = useContext(AuthContext);
+  console.log(state);
+  console.log(state.userdeatils);
   const [ActivityIndicators, setActivityIndicators] = useState(false);
+  //handle
+  // const { isdetails } = useContext(AuthContext);
+  const handlecall = () => {
+    // console.log("console.log");
+    // alert("hiiii");
+    dispatch({ type: "userdetails" });
+    // setuserdetails("true");
+    setTimeout(() => navigation.navigate("bottomhome"), 100);
+  };
+  const handleCLick23 = () => {};
   const [image, setImage] = useState(null);
   //to get skills
   useEffect(() => {
@@ -694,6 +716,9 @@ export default function Userprofile({ navigation }) {
                   </View>
                 </TouchableOpacity>
                 <View style={styles.buttonContainer}>
+                  <TouchableOpacity onPress={() => handlecall()}>
+                    <Text>enter details</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity
                     style={{
                       backgroundColor: isValid ? "#6BC3FF" : "#87CEEB",

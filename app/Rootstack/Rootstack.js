@@ -17,7 +17,7 @@ import UserInfo from "../Pages/USerInfo";
 import SwiperCard from "../Pages/Post";
 import Jobseeker from "../Pages/jobseekerDeatils";
 import BottomTAb, {
-  filterscreenmain,
+  Filterscreenmain,
   JobProviderBottomTAb,
   ModifyHome,
   Rentalproviderbottomtab,
@@ -215,14 +215,10 @@ function Root() {
           component={UserProfileEdit}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Userprofile"
-          component={Userprofile}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Userprofile" component={Userprofile} />
         <Stack.Screen
           name="filter"
-          component={filterscreenmain}
+          component={Filterscreenmain}
           options={{ headerShown: true }}
         />
         <Stack.Screen

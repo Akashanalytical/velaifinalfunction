@@ -169,7 +169,7 @@ function FilterScreenTabs() {
   );
 }
 
-export function filterscreenmain() {
+export function Filterscreenmain() {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <FilterScreenTabs />

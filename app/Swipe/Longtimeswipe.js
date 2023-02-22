@@ -27,6 +27,7 @@ import Swiper from "react-native-deck-swiper";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Location from "expo-location";
 import { LocalizationContext } from "../../App";
+import { AuthContext } from "../../App";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Swipeable from "react-native-gesture-handler/Swipeable";
@@ -78,12 +79,79 @@ export default function LongtimeSwiperCard({ route }) {
   const navigation = useNavigation();
 
   const [index, setIndex] = React.useState(0);
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
   const [postId, setpostId] = useState({});
   const [address, setaddress] = useState(null);
   const [loading, setloading] = useState(true);
   const [search, setSearch] = useState("");
 
+  //to get  or check the handlelike
+  const handleLikeButtonPress = (card) => {
+    const newCards = data.map((c) => {
+      if (c.id === card.id) {
+        fetchdata(4, card.id);
+        console.log(card);
+        return { ...c, liked: c.liked == "true" ? "false" : "true" };
+      } else {
+        return c;
+      }
+    });
+    setData(newCards);
+  };
+
+  async function fetchdata(paras1, paras2) {
+    const body = {};
+    body.l_id = paras2;
+    body.user_id = paras1;
+    console.log(body);
+    try {
+      await fetch("http://192.168.1.2:5000/api/l_like_job", {
+        method: "post", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("immmmm");
+          console.log(result);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+
+  async function setapplied(paras1, paras2) {
+    const body = {};
+    body.l_p_id = paras2;
+    body.user_id = paras1;
+    console.log(body);
+    try {
+      await fetch("http://192.168.1.2:5000/api/longtime_apply_job", {
+        method: "post", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("immmmm");
+          console.log(result);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
   //getting a user Location takes time so i need to wait so i make a async function
   const getPermission = async () => {
     //we use foreround permission for gettin Permission inside the app
@@ -169,15 +237,18 @@ export default function LongtimeSwiperCard({ route }) {
     getJobs();
   }, []);
   const getdata = async () => {
+    const body = {};
+    body.page = 0;
     try {
-      await fetch("http://192.168.1.5:5000/api/l_apply_check/1", {
-        method: "GET",
+      await fetch("http://192.168.1.2:5000/api/limit/L_like_apply_check/4", {
+        method: "POST",
         mode: "cors",
         cache: "no-cache",
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       })
         .then((response) => response.json())
         .then((result) => {
@@ -224,6 +295,30 @@ export default function LongtimeSwiperCard({ route }) {
     setIndex(Math.floor(Math.random() * data.length - 1) + 1);
   };
   const Card = ({ card }) => {
+    const { state, dispatch } = useContext(AuthContext);
+
+    console.log(state);
+    console.log("im after");
+    const handlenavigation = (paras) => {
+      console.log("im at navigatioon");
+      console.log(state);
+      if (state.userdeatils) {
+        console.log("you already applied");
+        // console.log(userDetails);
+        const newCards = data.map((c) => {
+          if (c.id === paras.id) {
+            setapplied(4, card.id);
+            console.log(card);
+            return { ...c, apply: "True" };
+          } else {
+            return c;
+          }
+        });
+        setData(newCards);
+      } else {
+        navigation.navigate("Userprofile");
+      }
+    };
     if (loading) {
       console.log(loading);
       return (
@@ -272,13 +367,20 @@ export default function LongtimeSwiperCard({ route }) {
                 flexDirection: "row",
               }}
             >
-              <Text
-                style={{ color: "#000000", fontSize: 15, fontWeight: "600" }}
+              <TouchableOpacity
+                onPress={() => {
+                  handleLikeButtonPress(data[index]);
+                  console.log("im at the like ", data[index].liked);
+                }}
               >
-                {/* <FontAwesome name="rupee" size={16} color="#000000" />
-                {data[index].payment} */}
-                <AntDesign name="hearto" size={34} color="black" />
-              </Text>
+                {data[index].liked == "true" ? (
+                  <AntDesign name="heart" size={24} color="black" />
+                ) : (
+                  <AntDesign name="hearto" size={24} color="black" />
+                )}
+
+                {/* <AntDesign name="hearto" size={34} color="black" /> */}
+              </TouchableOpacity>
               {/* <Text
                 style={{ color: "#000000", fontSize: 15, fontWeight: "600" }}
               >
@@ -730,7 +832,13 @@ export default function LongtimeSwiperCard({ route }) {
                         {data[index].Duration2}
                       </Text>
                     </LinearGradient> */}
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        // navigation.navigate("Userprofile");
+                        handlenavigation(data[index]);
+                      }}
+                      disabled={data[index].apply == "True"}
+                    >
                       <LinearGradient
                         colors={["#16323B", "#1F4C5B", "#1E5966", "#16323B"]}
                         style={{
@@ -738,6 +846,7 @@ export default function LongtimeSwiperCard({ route }) {
                           width: 160,
                           borderRadius: 10,
                           marginTop: 30,
+                          opacity: data[index].apply == "True" ? 0.5 : 1,
                           justifyContent: "center",
                           alignItems: "center",
                           flexDirection: "row",
@@ -753,7 +862,9 @@ export default function LongtimeSwiperCard({ route }) {
                             fontWeight: "600",
                           }}
                         >
-                          Apply Now
+                          {data[index].apply == "True"
+                            ? "Applied"
+                            : "Apply Now"}
                         </Text>
                       </LinearGradient>
                     </TouchableOpacity>

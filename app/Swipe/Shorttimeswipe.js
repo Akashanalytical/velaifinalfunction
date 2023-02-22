@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
   SafeAreaView,
   Dimensions,
   Animated,
@@ -15,7 +16,8 @@ import {
 } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import Top from "../components/Topcontainer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, useReducer } from "react";
+import { AuthContext } from "../../App";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { FontAwesome5, Entypo } from "@expo/vector-icons";
@@ -24,6 +26,8 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import Swiper from "react-native-deck-swiper";
+import { AUthReducer } from "../Authreducer";
+import { Inital_State } from "../Authreducer";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Location from "expo-location";
 import { LocalizationContext } from "../../App";
@@ -32,9 +36,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Transitioning, Transition } from "react-native-reanimated";
 import { TouchableOpacity, TouchableHighlight } from "react-native";
-import { useContext } from "react";
-import { useNavigation } from "@react-navigation/native";
+import {
+  NavigationRouteContext,
+  useNavigation,
+} from "@react-navigation/native";
 import { isLoading } from "expo-font";
+import { useMemo } from "react";
 
 const { height, width } = Dimensions.get("window");
 
@@ -73,22 +80,36 @@ const transition = (
 const swiperRef = React.createRef();
 const transitionRef = React.createRef();
 export default function ShorttimeSwiperCard({ route }) {
-  const { t, language, setlanguage } = useContext(LocalizationContext);
+  const { t, language, setlanguage, userDetails } =
+    useContext(LocalizationContext);
+  // const { getstate } = useContext(AuthContext);
+  console.log("im before");
+  // const { state, dispatch } = useContext(AuthContext);
+  const [data, setData] = useState([]);
+  const [index, setIndex] = React.useState(0);
+  console.log(index);
   console.log("post data");
   console.log(route);
   const navigation = useNavigation();
-
-  const [index, setIndex] = React.useState(0);
+  // const [state, dispatch] = useReducer(AUthReducer, Inital_State);
+  // console.log(state);
+  // const memoziedState = useMemo(() => state, [state]);
   const [isliked, setisliked] = useState(false);
+  //  const { state, dispatch } = useContext(AuthContext);
+  console.log("reducer state is");
+  // console.log(state.userDeatils);
+  const [userdetails, setuser] = useState({});
   const [likedpost, setlikedpost] = useState([]);
-  const [data, setData] = useState([]);
   const [postId, setpostId] = useState({});
+  const [page, setpage] = useState(0);
+  const [newcards, setnewcards] = useState([]);
   const [address, setaddress] = useState(null);
   const [loading, setloading] = useState(true);
+  console.log(loading);
   const [search, setSearch] = useState("");
   //to set the liked post
 
-  //to get the API
+  //to get the API && mark liked
   async function fetchdata(paras1, paras2) {
     const body = {};
     body.s_id = paras2;
@@ -96,6 +117,61 @@ export default function ShorttimeSwiperCard({ route }) {
     console.log(body);
     try {
       await fetch("http://192.168.1.5:5000/api/s_like_details", {
+        method: "post", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("immmmm");
+          console.log(result);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+  //mark applied
+  async function setapplied(paras1, paras2) {
+    const body = {};
+    body.s_p_id = paras2;
+    body.user_id = paras1;
+    console.log(body);
+    try {
+      await fetch("http://192.168.1.5:5000/api/shorttime_apply_job", {
+        method: "post", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("immmmm");
+          console.log(result);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+
+  //mark applied
+  async function setapplied(paras1, paras2) {
+    const body = {};
+    body.s_p_id = paras2;
+    body.user_id = paras1;
+    console.log(body);
+    try {
+      await fetch("http://192.168.1.5:5000/api/shorttime_apply_job", {
         method: "post", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -200,25 +276,71 @@ export default function ShorttimeSwiperCard({ route }) {
     getJobs();
   }, []);
 
+  useEffect(() => {
+    console.log("im at useeffect");
+    console.log(data);
+    console.log(loading);
+  }, [data, loading]);
   // useEffect(() => {
-  //   setisliked(!isliked);
-  // }, [isliked]);
-  const getdata = async () => {
+  //   console.log("im at state");
+  //   console.log(state);
+  //   setuser(state);
+  // }, [state]);
+
+  const getdata = async (paras) => {
+    const body = {};
+    body.page = 0;
     try {
-      await fetch("http://192.168.1.5:5000/api/s_apply_check/4", {
-        method: "GET",
+      await fetch("http://192.168.1.2:5000/api/limit/s_like_apply_check/4", {
+        method: "POST",
         mode: "cors",
         cache: "no-cache",
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       })
         .then((response) => response.json())
         .then((result) => {
           console.log("post result");
+          console.log(result);
           console.log(result["short"]);
           setData(result["short"]);
+          setloading(false);
+          setpage(page + 1);
+          console.log(data);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getdata1 = async (paras) => {
+    const body = {};
+    body.page = 1;
+    try {
+      await fetch("http://192.168.1.2:5000/api/limit/s_like_apply_check/4", {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("post result");
+          console.log(result);
+          const updated = [...data, ...result["short"]];
+          console.log(updated);
+          // setnewcards();
+          // setData(result["short"]);
+          setData(updated);
+          console.log(data);
+          setpage(page + 1);
           setloading(false);
         });
     } catch (error) {
@@ -267,12 +389,52 @@ export default function ShorttimeSwiperCard({ route }) {
     setData(newCards);
   };
 
+  // const handlecall = () => {
+  //   console.log("console.log");
+  //   alert("hiiii");
+  //   dispatch({ type: "IS_Deatils_given" });
+  // };
   const onSwiped = () => {
+    Alert.alert("fasfafafasfasfa");
+    console.log(data[index]);
+    console.log(data[index].apply);
+    // console.log(data);
     transitionRef.current.animateNextTransition();
-    setIndex(Math.floor(Math.random() * data.length - 1) + 1);
+    setIndex(index + 1);
+    if (index === 7) {
+      Alert.alert("hiiiiiiii");
+      getdata1(page);
+    }
   };
+
   const Card = ({ card }) => {
+    const { state, dispatch } = useContext(AuthContext);
+
+    console.log(state);
+    console.log("im after");
+    const handlenavigation = (paras) => {
+      console.log("im at navigatioon");
+      console.log(state);
+      if (state.userdeatils) {
+        console.log("you already applied");
+        // console.log(userDetails);
+        const newCards = data.map((c) => {
+          if (c.id === paras.id) {
+            setapplied(4, card.id);
+            console.log(card);
+            return { ...c, apply: "True" };
+          } else {
+            return c;
+          }
+        });
+        setData(newCards);
+      } else {
+        navigation.navigate("Userprofile");
+      }
+    };
     if (loading) {
+      console.log("im at loading");
+      console.log(loading);
       return (
         <View>
           <Text>Loading..</Text>
@@ -615,7 +777,7 @@ export default function ShorttimeSwiperCard({ route }) {
                           fontWeight: "400",
                         }}
                       >
-                        2.5 Km
+                        {data[index].distance} km
                       </Text>
                     </View>
                   </View>
@@ -767,7 +929,14 @@ export default function ShorttimeSwiperCard({ route }) {
                         {data[index].Duration2}
                       </Text>
                     </LinearGradient> */}
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        // navigation.navigate("Userprofile");
+                        handlenavigation(data[index]);
+                      }}
+                      disabled={data[index].apply == "True"}
+                      // handleLikeButtonPress(data[index]);
+                    >
                       <LinearGradient
                         colors={["#16323B", "#1F4C5B", "#1E5966", "#16323B"]}
                         style={{
@@ -775,6 +944,7 @@ export default function ShorttimeSwiperCard({ route }) {
                           width: 160,
                           borderRadius: 10,
                           marginTop: 30,
+                          opacity: data[index].apply == "True" ? 0.5 : 1,
                           justifyContent: "center",
                           alignItems: "center",
                           flexDirection: "row",
@@ -790,7 +960,9 @@ export default function ShorttimeSwiperCard({ route }) {
                             fontWeight: "600",
                           }}
                         >
-                          Apply Now
+                          {data[index].apply == "True"
+                            ? "Applied"
+                            : "Apply Now"}
                         </Text>
                       </LinearGradient>
                     </TouchableOpacity>
@@ -893,6 +1065,20 @@ export default function ShorttimeSwiperCard({ route }) {
       </Animated.ScrollView>
     );
   };
+  const [swipedAll, setSwipedAll] = useState(false);
+
+  const handleOnSwipedAll = () => {
+    console.log("I get the daata");
+    if (!swipedAll) {
+      // setloading(true);
+      // getdata1(page);
+      console.log("i get the data");
+      console.log(data);
+      Alert.alert("No more cards left!");
+      setSwipedAll(true);
+      // Timeout used for show Ripples loader to remove swiper container re-render glitch
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -950,11 +1136,11 @@ export default function ShorttimeSwiperCard({ route }) {
           cards={data}
           cardIndex={index}
           renderCard={(card) => <Card card={card} />}
-          infinite
           backgroundColor={"transparent"}
           cardVerticalMargin={1}
           cardHorizontalMargin={3}
           onSwiped={onSwiped}
+          onSwipedAll={handleOnSwipedAll}
           useNativeDriver={true}
           stackSize={stackSize}
           swipeTop={false}

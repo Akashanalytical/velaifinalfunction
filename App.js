@@ -1,20 +1,32 @@
 import * as SplashScreen from "expo-splash-screen";
 import { I18n } from "i18n-js";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useReducer,
+} from "react";
 import { createContext } from "react";
 import { StyleSheet, View } from "react-native";
+import { AUthReducer } from "./app/Authreducer";
+import { Inital_State } from "./app/Authreducer";
 import Jobmainselect from "./app/Pages/jobprovider/Jobtermchoose";
 import translations from "./app/Pages/translations";
 import Root from "./app/Rootstack/Rootstack";
 import { doSomethingWithInput, changeLanguage } from "./app/util/util.js";
 export const LocalizationContext = createContext();
+export const AuthContext = createContext();
 
 //To make the splash screen to stay
 SplashScreen.preventAutoHideAsync();
 const i18n = new I18n(translations);
 export default function App() {
   const [language, setlanguage] = useState("en");
+  const [userDetails, setuserdetails] = useState(false);
   const [appIsReady, setAppIsReady] = useState(false);
+  const [state, dispatch] = useReducer(AUthReducer, Inital_State);
+
   //for otp frontEnd
 
   //to get the localize at first
@@ -23,8 +35,22 @@ export default function App() {
       t: (scope, options) => i18n.t(scope, { language, ...options }),
       language,
       setlanguage,
+      userDetails: userDetails,
+      setuserdetails: (userDetails) => setuserdetails(userDetails),
     }),
-    [language]
+    [language, userDetails]
+  );
+
+  const authContext = useMemo(
+    () => ({
+      isdetails: () => {
+        dispatch({ type: "IS_Deatils_given" });
+      },
+      getstate: () => {
+        console.log(state);
+      },
+    }),
+    [state]
   );
   console.log("i called");
   i18n.locale = language;
@@ -58,7 +84,9 @@ export default function App() {
   return (
     <View style={styles.main} onLayout={onLayoutRootView}>
       <LocalizationContext.Provider value={localizationContext}>
-        <Root />
+        <AuthContext.Provider value={{ state, dispatch }}>
+          <Root />
+        </AuthContext.Provider>
       </LocalizationContext.Provider>
     </View>
   );

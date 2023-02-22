@@ -1,6 +1,20 @@
 //import liraries
-import React, { Component, useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import React, { Component, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  StatusBar,
+  Pressable,
+  SafeAreaView,
+  RefreshControl,
+  ActivityIndicator,
+  TextInput,
+  Search,
+  Alert,
+} from "react-native";
+
 import Top from "../components/Topcontainer";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -11,261 +25,284 @@ import {
 } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-
-// create a component
-function Saved() {
-  const [search, setSearch] = useState("");
-
-  return (
-    <View style={styles.container}>
-      <Top />
+const Items = ({ title, sal, per, time, loc, Dis, name, short }) => (
+  <View style={{ flex: 1, marginBottom: 20 }}>
+    <View
+      style={{
+        backgroundColor: "#F2F2F2",
+        borderRadius: 10,
+        height: "100%",
+        width: "90%",
+        marginLeft: "5%",
+        justifyContent: "center",
+        shadowColor: "#000000",
+        shadowOffset: {
+          width: 0,
+          height: 6,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 5.62,
+        elevation: 8,
+      }}
+    >
       <View
         style={{
-          width: 280,
-          height: 35,
-          borderWidth: 1,
-          // paddingLeft: 20,
-          // margin: 5,
-
-          justifyContent: "space-evenly",
           flexDirection: "row",
-          borderRadius: 20,
-          // marginLeft: 200,
-          borderColor: "#707070",
-          backgroundColor: "#fffff",
-          marginHorizontal: 55,
-          marginVertical: 15,
-        }}
-      >
-        <View style={{ justifyContent: "center" }}>
-          <EvilIcons name="search" size={24} color="#707070" />
-        </View>
-        <TextInput
-          value={search}
-          underlineColorAndroid="transparent"
-          placeholder="Search here"
-          style={{ marginLeft: 10 }}
-        />
-        <View
-          style={{
-            marginLeft: 130,
-            marginTop: 5,
-          }}
-        >
-          <FontAwesome name="microphone" size={24} color="#707070" />
-        </View>
-      </View>
-      <View
-        style={{
+          justifyContent: "space-between",
           marginHorizontal: 10,
-          backgroundColor: "#F2F2F2",
-          borderRadius: 10,
-          height: "20%",
-          shadowColor: "#000000",
-          shadowOffset: {
-            width: 0,
-            height: 6,
-          },
-          shadowOpacity: 0.2,
-          shadowRadius: 5.62,
-          elevation: 8,
         }}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginHorizontal: 10,
-          }}
-        >
-          <Text
-            style={{
-              color: "#333",
-              fontSize: 18,
-              fontWeight: "500",
-              marginTop: 10,
-            }}
-          >
-            House Cleaning
-          </Text>
-          <FontAwesome name="share-alt" size={34} color="#333" />
-        </View>
-
         <Text
           style={{
             color: "#333",
-            fontSize: 14,
-            fontWeight: "400",
+            fontSize: 18,
+            fontWeight: "500",
             marginTop: 10,
-
-            marginHorizontal: 10,
           }}
         >
-          Zeal Zoft Pvt Ltd
+          {title}
         </Text>
+        <FontAwesome name="share-alt" size={34} color="#333" />
+      </View>
 
+      <Text
+        style={{
+          color: "#333",
+          fontSize: 14,
+          fontWeight: "400",
+          marginTop: 10,
+
+          marginHorizontal: 10,
+        }}
+      >
+        Posted By: {name}
+      </Text>
+
+      <View
+        style={{
+          flexDirection: "row",
+          width: "57%",
+          marginHorizontal: 10,
+          marginTop: 10,
+        }}
+      >
         <View
           style={{
-            flexDirection: "row",
-            width: "57%",
-            marginHorizontal: 10,
-            marginTop: 10,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            width: 150,
           }}
         >
           <View
             style={{
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              width: 150,
+              flexDirection: "row",
+              marginBottom: 10,
+              alignContent: "center",
             }}
           >
-            <View
+            <FontAwesome name="rupee" size={22} color="#333" />
+            <Text
               style={{
-                flexDirection: "row",
-                marginBottom: 10,
-                alignContent: "center",
-              }}
-            >
-              <FontAwesome name="rupee" size={22} color="#333" />
-              <Text
-                style={{
-                  // marginTop: 3,
+                // marginTop: 3,
 
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                Rs.1000/day
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                marginBottom: 10,
-                width: 150,
-                alignContent: "center",
+                marginLeft: 10,
+                fontSize: 13,
+                fontWeight: "400",
               }}
             >
-              <MaterialCommunityIcons
-                name="timer-sand"
-                size={24}
-                color="#333"
-              />
-              <Text
-                style={{
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                5 Days
-              </Text>
-            </View>
-            {/* <View
-              style={{
-                flexDirection: "row",
-                marginBottom: 10,
-                width: 150,
-                alignContent: "center",
-              }}
-            >
-              <SimpleLineIcons name="graduation" size={24} color="#333" />
-              <Text
-                style={{
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                Non-Mandatory
-              </Text>
-            </View> */}
+              {sal}/{per}
+            </Text>
           </View>
           <View
             style={{
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              marginLeft: 3,
+              flexDirection: "row",
+              marginBottom: 10,
+              width: 150,
+              alignContent: "center",
             }}
           >
-            <View
+            <MaterialCommunityIcons name="timer-sand" size={24} color="#333" />
+            <Text
               style={{
-                flexDirection: "row",
-                marginBottom: 10,
-                width: 180,
-                alignContent: "center",
+                marginLeft: 10,
+                fontSize: 13,
+                fontWeight: "400",
               }}
             >
-              <Ionicons name="location-outline" size={24} color="#333" />
-              <Text
-                style={{
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                Adyar, Chennai
-              </Text>
-            </View>
-            <View
+              {time}
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            marginLeft: 3,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              marginBottom: 10,
+              width: 180,
+              alignContent: "center",
+            }}
+          >
+            <Ionicons name="location-outline" size={24} color="#333" />
+            <Text
               style={{
-                alignContent: "center",
+                marginLeft: 10,
+                fontSize: 13,
+                fontWeight: "400",
+              }}
+            >
+              {loc}
+            </Text>
+          </View>
+          <View
+            style={{
+              alignContent: "center",
 
-                flexDirection: "row",
-                marginBottom: 10,
-                width: 180,
-              }}
-            >
-              <MaterialCommunityIcons
-                name="map-marker-distance"
-                size={22}
-                color="#333"
-              />
-              <Text
-                style={{
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                2.5 Km
-              </Text>
-            </View>
-            {/* <View
+              flexDirection: "row",
+              marginBottom: 10,
+              width: 180,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="map-marker-distance"
+              size={22}
+              color="#333"
+            />
+            <Text
               style={{
-                flexDirection: "row",
-                alignContent: "center",
-                width: 180,
-                marginBottom: 10,
+                marginLeft: 10,
+                fontSize: 13,
+                fontWeight: "400",
               }}
             >
-              <MaterialCommunityIcons
-                name="bag-personal-outline"
-                size={20}
-                color="#333"
-              />
-              <Text
-                style={{
-                  marginLeft: 10,
-                  fontSize: 13,
-                  fontWeight: "400",
-                }}
-              >
-                Fresher
-              </Text>
-            </View> */}
+              {Dis}
+            </Text>
+          </View>
+          <View
+            style={{
+              alignContent: "center",
+
+              flexDirection: "row",
+              marginBottom: 10,
+              width: 180,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="map-marker-distance"
+              size={22}
+              color="#333"
+            />
+            <Text
+              style={{
+                marginLeft: 10,
+                fontSize: 13,
+                fontWeight: "400",
+              }}
+            >
+              {short == "True" ? "Short Time" : "Long Time"}
+            </Text>
           </View>
         </View>
       </View>
     </View>
+  </View>
+  // <View style={styles.item}>
+  //   <Text style={styles.title}>{title}</Text>
+  // </View>
+);
+// create a component
+function Saved({ navigation }) {
+  const [data, setdata] = useState([]);
+  const [loading, setloading] = useState(true);
+  const [refreshing, setRefreshing] = useState(true);
+  useEffect(() => {
+    fetchdata();
+  }, [loading]);
+
+  useEffect(
+    () =>
+      navigation.addListener("focus", () => Alert.alert("Screen was focused")),
+    []
+  );
+  async function fetchdata() {
+    console.log("i am at the dataa");
+    try {
+      await fetch("http://192.168.1.2:5000/api/s_apply_details/4", {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          setRefreshing(false);
+          var newdata = result["s_job_apply_details"];
+          setdata(newdata);
+          setloading(false);
+        });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+  console.log(data.length > 0);
+  if (loading && data.length > 0) {
+    return (
+      <View>
+        <Text>Loading..</Text>
+      </View>
+    );
+  }
+  return (
+    <SafeAreaView style={styles.container}>
+      <Top />
+      <View>
+        {refreshing ? <ActivityIndicator /> : null}
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <Items
+              title={item.job_title}
+              sal={item.Salary}
+              per={item.per}
+              time={item.time}
+              name={item.username}
+              loc={item.location}
+              Dis={item.distance}
+              short={item.is_short}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchdata} />
+          }
+        />
+      </View>
+    </SafeAreaView>
   );
 }
-
-// define your styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: StatusBar.currentHeight || 0,
+  },
+  item: {
+    backgroundColor: "#f9c2ff",
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  title: {
+    fontSize: 32,
   },
 });
 
