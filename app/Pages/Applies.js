@@ -217,20 +217,21 @@ const Items = ({ title, sal, per, time, loc, Dis, name, short }) => (
 );
 // create a component
 function Saved({ navigation }) {
+  console.log(navigation);
   const [data, setdata] = useState([]);
   const [loading, setloading] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   useEffect(() => {
     fetchdata();
-  }, [loading]);
+  }, []);
 
-  useEffect(
-    () =>
-      navigation.addListener("focus", () => Alert.alert("Screen was focused")),
-    []
-  );
+  React.useEffect(() => {
+    navigation.addListener("tabPress", () => fetchdata());
+  }, []);
+
   async function fetchdata() {
     console.log("i am at the dataa");
+    console.log(navigation);
     try {
       await fetch("http://192.168.1.2:5000/api/s_apply_details/4", {
         method: "GET", // *GET, POST, PUT, DELETE, etc.

@@ -81,17 +81,17 @@ export function ModifyHome({ route }) {
   );
 }
 
-function LikedScreen() {
+function LikedScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
-      <Heart />
+      <Heart navigation={navigation} />
     </View>
   );
 }
-function ApplieScreen() {
+function ApplieScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
-      <Saved />
+      <Saved navigation={navigation} />
     </View>
   );
 }

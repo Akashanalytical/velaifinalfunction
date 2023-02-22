@@ -213,7 +213,7 @@ const Items = ({ title, sal, per, time, loc, Dis, name, short }) => (
 );
 
 // create a component
-const Heart = () => {
+const Heart = ({ navigation }) => {
   // const [search, setSearch] = useState("");
   const [data, setdata] = useState([]);
   const [loading, setloading] = useState(true);
@@ -221,6 +221,10 @@ const Heart = () => {
   useEffect(() => {
     fetchdata();
   }, []);
+  React.useEffect(() => {
+    navigation.addListener("tabPress", () => fetchdata());
+  }, []);
+
   async function fetchdata() {
     console.log("i am at the dataass");
     try {

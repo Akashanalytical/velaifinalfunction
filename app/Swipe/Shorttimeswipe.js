@@ -116,7 +116,7 @@ export default function ShorttimeSwiperCard({ route }) {
     body.user_id = paras1;
     console.log(body);
     try {
-      await fetch("http://192.168.1.5:5000/api/s_like_details", {
+      await fetch("http://192.168.1.2:5000/api/s_like_details", {
         method: "post", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -143,7 +143,7 @@ export default function ShorttimeSwiperCard({ route }) {
     body.user_id = paras1;
     console.log(body);
     try {
-      await fetch("http://192.168.1.5:5000/api/shorttime_apply_job", {
+      await fetch("http://192.168.1.2:5000/api/shorttime_apply_job", {
         method: "post", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -165,32 +165,7 @@ export default function ShorttimeSwiperCard({ route }) {
   }
 
   //mark applied
-  async function setapplied(paras1, paras2) {
-    const body = {};
-    body.s_p_id = paras2;
-    body.user_id = paras1;
-    console.log(body);
-    try {
-      await fetch("http://192.168.1.5:5000/api/shorttime_apply_job", {
-        method: "post", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: JSON.stringify(body),
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          console.log("immmmm");
-          console.log(result);
-        });
-    } catch (error) {
-      console.warn(error);
-    }
-  }
+
   //getting a user Location takes time so i need to wait so i make a async function
   const getPermission = async () => {
     //we use foreround permission for gettin Permission inside the app
@@ -395,10 +370,10 @@ export default function ShorttimeSwiperCard({ route }) {
   //   dispatch({ type: "IS_Deatils_given" });
   // };
   const onSwiped = () => {
-    Alert.alert("fasfafafasfasfa");
-    console.log(data[index]);
-    console.log(data[index].apply);
+    // console.log(data[index]);
+    // console.log(data[index].apply);
     // console.log(data);
+
     transitionRef.current.animateNextTransition();
     setIndex(index + 1);
     if (index === 7) {
@@ -406,12 +381,48 @@ export default function ShorttimeSwiperCard({ route }) {
       getdata1(page);
     }
   };
+  const onSwipedLeft = () => {
+    // console.log(data[index]);
+    // console.log(data[index].apply);
+    // console.log(data);
 
+    console.log("left swipe");
+    transitionRef.current.animateNextTransition();
+    setIndex(index + 1);
+    // if (index === 7) {
+    //   Alert.alert("hiiiiiiii");
+    //   getdata1(page);
+    // }
+  };
+  const onSwipedRight = () => {
+    // console.log(data[index]);
+    // console.log(data[index].apply);
+    // console.log(data);
+    transitionRef.current.animateNextTransition();
+    console.log("Right swipe");
+
+    setIndex(index - 1);
+    // if (index === 7) {
+    //   Alert.alert("hiiiiiiii");
+    //   getdata1(page);
+    // }
+  };
   const Card = ({ card }) => {
     const { state, dispatch } = useContext(AuthContext);
 
     console.log(state);
     console.log("im after");
+    const handleCallclick = () => {
+      console.log(data[index].isallow_tocall);
+      console.log(state.userdeatils);
+      if (data[index].isallow_tocall == "1" && state.userdeatils) {
+        Alert.alert(
+          `Name: MR/Ms ${data[index].username}\nContact:${data[index].number}(or)\n${data[index].additionalnumber}`
+        );
+      } else {
+        navigation.navigate("Userprofile");
+      }
+    };
     const handlenavigation = (paras) => {
       console.log("im at navigatioon");
       console.log(state);
@@ -883,7 +894,9 @@ export default function ShorttimeSwiperCard({ route }) {
                       justifyContent: "space-between",
                     }}
                   >
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleCallclick(data[index])}
+                    >
                       <LinearGradient
                         colors={["#16323B", "#1F4C5B", "#1E5966", "#16323B"]}
                         style={{
@@ -1076,6 +1089,7 @@ export default function ShorttimeSwiperCard({ route }) {
       console.log(data);
       Alert.alert("No more cards left!");
       setSwipedAll(true);
+      getdata();
       // Timeout used for show Ripples loader to remove swiper container re-render glitch
     }
   };
@@ -1140,6 +1154,8 @@ export default function ShorttimeSwiperCard({ route }) {
           cardVerticalMargin={1}
           cardHorizontalMargin={3}
           onSwiped={onSwiped}
+          onSwipedLeft={onSwipedLeft}
+          onSwipedRight={onSwipedRight}
           onSwipedAll={handleOnSwipedAll}
           useNativeDriver={true}
           stackSize={stackSize}
