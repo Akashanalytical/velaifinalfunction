@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
   SafeAreaView,
   Dimensions,
   Animated,
@@ -81,6 +82,8 @@ export default function LongtimeSwiperCard({ route }) {
   const [index, setIndex] = React.useState(0);
   const [data, setData] = useState([]);
   const [postId, setpostId] = useState({});
+  const [page, setpage] = useState(0);
+
   const [address, setaddress] = useState(null);
   const [loading, setloading] = useState(true);
   const [search, setSearch] = useState("");
@@ -290,9 +293,66 @@ export default function LongtimeSwiperCard({ route }) {
   const getCOntent = () => {
     return <ActivityIndicator size="larger" />;
   };
+  const getdata1 = async (paras) => {
+    const body = {};
+    body.page = paras;
+    try {
+      await fetch("http://192.168.1.2:5000/api/limit/L_like_apply_check/4", {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("post result");
+          console.log(result);
+          const updated = [...data, ...result["long"]];
+          console.log(updated);
+          // setnewcards();
+          // setData(result["short"]);
+          setData(updated);
+          console.log(data);
+          setpage(page + 1);
+          setloading(false);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onSwiped = () => {
+    console.log(data);
+
     transitionRef.current.animateNextTransition();
-    setIndex(Math.floor(Math.random() * data.length - 1) + 1);
+    if ((index) => 0) {
+      console.log("new page dynamic");
+      console.log(page);
+      setIndex(index + 1);
+      // console.log();
+      if (index === 7 * page) {
+        getdata1(page);
+      }
+    } else {
+      Alert.alert("please start the at the oppsite direction!");
+    }
+  };
+
+  const onSwipedRight = () => {
+    // console.log(data[index]);
+    // console.log(data[index].apply);
+    // console.log(data);
+    transitionRef.current.animateNextTransition();
+    console.log("Right swipe");
+    console.log(index);
+    setIndex(index - 1);
+    // if (index === 7) {
+    //   Alert.alert("hiiiiiiii");
+    //   getdata1(page);
+    // }
   };
   const Card = ({ card }) => {
     const { state, dispatch } = useContext(AuthContext);
@@ -405,7 +465,7 @@ export default function LongtimeSwiperCard({ route }) {
               <FontAwesome name="share-alt" size={34} color="#333" />
             </View>
             <View style={{}}>
-              {data[index].pic === null ? (
+              {data[index].jobpic === null ? (
                 <Image
                   source={{
                     uri: "https://images.pexels.com/photos/442559/pexels-photo-442559.jpeg?auto=compress&cs=tinysrgb&w=600",
@@ -424,7 +484,7 @@ export default function LongtimeSwiperCard({ route }) {
               ) : (
                 <Image
                   source={{
-                    uri: data[index].pic,
+                    uri: data[index].jobpic,
                   }}
                   style={{
                     height: 250,
@@ -967,7 +1027,21 @@ export default function LongtimeSwiperCard({ route }) {
       </Animated.ScrollView>
     );
   };
+  const [swipedAll, setSwipedAll] = useState(false);
 
+  const handleOnSwipedAll = () => {
+    console.log("I get the daata");
+    if (!swipedAll) {
+      // setloading(true);
+      // getdata1(page);
+      console.log("i get the data");
+      console.log(data);
+      Alert.alert("No more cards left!");
+      setSwipedAll(true);
+      getdata();
+      // Timeout used for show Ripples loader to remove swiper container re-render glitch
+    }
+  };
   return (
     <View style={{ flex: 1 }}>
       {/* <Top /> */}
@@ -1005,7 +1079,7 @@ export default function LongtimeSwiperCard({ route }) {
         <TextInput
           value={search}
           underlineColorAndroid="transparent"
-          placeholder="Search here"
+          placeholder="Enter job title"
           style={{ marginLeft: 10 }}
         />
         <View
@@ -1024,16 +1098,17 @@ export default function LongtimeSwiperCard({ route }) {
           cards={data}
           cardIndex={index}
           renderCard={(card) => <Card card={card} />}
-          infinite
           backgroundColor={"transparent"}
           cardVerticalMargin={1}
           cardHorizontalMargin={3}
           onSwiped={onSwiped}
+          onSwipedRight={onSwipedRight}
           useNativeDriver={true}
           stackSize={stackSize}
           swipeTop={false}
           swipeBottom={false}
           stackScale={10}
+          onSwipedAll={handleOnSwipedAll}
           disableTopSwipe={false}
           stackSeparation={14}
           horizontalSwipe={true}

@@ -15,6 +15,9 @@ import {
   Pressable,
 } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
+import { useForm, Controller } from "react-hook-form";
+import DropDownPicker from "react-native-dropdown-picker";
+import { useCallback } from "react";
 import Top from "../components/Topcontainer";
 import { useState, useEffect, useContext, useReducer } from "react";
 import { AuthContext } from "../../App";
@@ -293,7 +296,7 @@ export default function ShorttimeSwiperCard({ route }) {
 
   const getdata1 = async (paras) => {
     const body = {};
-    body.page = 1;
+    body.page = paras;
     try {
       await fetch("http://192.168.1.2:5000/api/limit/s_like_apply_check/4", {
         method: "POST",
@@ -372,40 +375,38 @@ export default function ShorttimeSwiperCard({ route }) {
   const onSwiped = () => {
     // console.log(data[index]);
     // console.log(data[index].apply);
-    // console.log(data);
+    console.log(data);
 
     transitionRef.current.animateNextTransition();
-    setIndex(index + 1);
-    if (index === 7) {
-      Alert.alert("hiiiiiiii");
-      getdata1(page);
+    if ((index) => 0) {
+      console.log("new page dynamic");
+      console.log(page);
+      setIndex(index + 1);
+      // console.log();
+      if (index === 7 * page) {
+        getdata1(page);
+      }
+    } else {
+      Alert.alert("please start the at the oppsite direction!");
     }
   };
-  const onSwipedLeft = () => {
-    // console.log(data[index]);
-    // console.log(data[index].apply);
-    // console.log(data);
 
-    console.log("left swipe");
-    transitionRef.current.animateNextTransition();
-    setIndex(index + 1);
-    // if (index === 7) {
-    //   Alert.alert("hiiiiiiii");
-    //   getdata1(page);
-    // }
-  };
   const onSwipedRight = () => {
     // console.log(data[index]);
     // console.log(data[index].apply);
     // console.log(data);
     transitionRef.current.animateNextTransition();
     console.log("Right swipe");
-
+    console.log(index);
     setIndex(index - 1);
     // if (index === 7) {
     //   Alert.alert("hiiiiiiii");
     //   getdata1(page);
     // }
+  };
+  const onChange2 = () => {
+    alert(workspacevalue);
+    console.log(workspacevalue);
   };
   const Card = ({ card }) => {
     const { state, dispatch } = useContext(AuthContext);
@@ -1079,7 +1080,36 @@ export default function ShorttimeSwiperCard({ route }) {
     );
   };
   const [swipedAll, setSwipedAll] = useState(false);
-
+  //workspace
+  const { handleSubmit, control } = useForm();
+  const [workspaceopen, setworkspaceopen] = useState(false);
+  const [workspacevalue, setworkspacevalue] = useState(false);
+  const [workspace, setworkspace] = useState([
+    { label: "Remote", value: "Remote" },
+    { label: "offline", value: "offline" },
+  ]);
+  useEffect(() => {
+    fetchdata();
+  }, []);
+  async function fetchdata() {
+    try {
+      await fetch("http://192.168.1.2:5000/api/job_title", {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+        .then((response) => response.json())
+        .then((result) => (console.log(result), setworkspace(result)));
+    } catch (error) {
+      console.log("i at job titile error");
+      console.warn(error);
+    }
+  }
   const handleOnSwipedAll = () => {
     console.log("I get the daata");
     if (!swipedAll) {
@@ -1094,6 +1124,8 @@ export default function ShorttimeSwiperCard({ route }) {
     }
   };
 
+  const onCompanyOpen = useCallback(() => {}, []);
+  const [userName, setUserName] = useState("");
   return (
     <View style={{ flex: 1 }}>
       {/* <Top /> */}
@@ -1107,7 +1139,7 @@ export default function ShorttimeSwiperCard({ route }) {
         </TouchableOpacity>
       </View>
 
-      <View
+      {/* <View
         style={{
           width: 280,
           height: 35,
@@ -1127,23 +1159,55 @@ export default function ShorttimeSwiperCard({ route }) {
       >
         <View style={{ justifyContent: "center" }}>
           <EvilIcons name="search" size={24} color="#707070" />
-        </View>
-        <TextInput
-          value={search}
+        </View> */}
+      {/* <TextInput
+          onChangeText={(userName) => setUserName(userName)}
+          value={userName}
           underlineColorAndroid="transparent"
-          placeholder="Search here"
+          placeholder="Enter Job title"
           style={{ marginLeft: 10 }}
+        /> */}
+      <View>
+        {/*workspace*/}
+        <Controller
+          name="workspace"
+          defaultValue=""
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.dropdownCompany}>
+              <DropDownPicker
+                style={styles.dropdown}
+                open={workspaceopen}
+                value={workspacevalue} //companyValue
+                items={workspace}
+                setOpen={setworkspaceopen}
+                setValue={setworkspacevalue}
+                setItems={setworkspace}
+                listMode="MODAL"
+                placeholder="Workspace"
+                placeholderStyle={[styles.placeholderStyles, { elevation: 30 }]}
+                containerStyle={{ zIndex: 10, width: "90%", marginLeft: 22 }}
+                loading={loading}
+                activityIndicatorColor="#5188E3"
+                searchable={true}
+                searchPlaceholder="Search your company here..."
+                onOpen={onCompanyOpen}
+                onChangeValue={() => onChange2()}
+              />
+            </View>
+          )}
         />
-        <View
+        {/* </View>
+        {/* {/* <View
           style={{
             marginLeft: 130,
             marginTop: 5,
           }}
         >
           <FontAwesome name="microphone" size={24} color="#707070" />
-        </View>
+        </View> */}
       </View>
-      <View style={styles.container}>
+      <View style={[styles.container, { marginLeft: 0 }]}>
         <StatusBar hidden={false} />
         <Swiper
           ref={swiperRef}
@@ -1154,7 +1218,7 @@ export default function ShorttimeSwiperCard({ route }) {
           cardVerticalMargin={1}
           cardHorizontalMargin={3}
           onSwiped={onSwiped}
-          onSwipedLeft={onSwipedLeft}
+          // onSwipedLeft={onSwipedLeft}
           onSwipedRight={onSwipedRight}
           onSwipedAll={handleOnSwipedAll}
           useNativeDriver={true}
@@ -1163,8 +1227,10 @@ export default function ShorttimeSwiperCard({ route }) {
           swipeBottom={false}
           stackScale={10}
           disableTopSwipe={false}
+          // disableRightSwipe={index == data.length ? true : false}
+          // disableLeftSwipe={index == data.length ? true : false}
           stackSeparation={14}
-          horizontalSwipe={true}
+          horizontalSwipe={index == data.length ? false : true}
           verticalSwipe={false}
           animateOverlayLabelsOpacity
           animateCardOpacity={false}
@@ -1185,9 +1251,108 @@ export default function ShorttimeSwiperCard({ route }) {
   );
 }
 const styles = StyleSheet.create({
+  // container: {
+  //   flex: 1,
+  //   position: "relative",
+  // },
+  // container1: {
+  //   flex: 1,
+  //   marginHorizontal: 10,
+  //   marginTop: 30,
+  // },
+  input: {
+    borderStyle: "solid",
+    borderColor: "#B7B7B7",
+    borderRadius: 7,
+    borderWidth: 1,
+    fontSize: 15,
+    height: 50,
+    marginHorizontal: 10,
+    paddingStart: 10,
+    marginBottom: 15,
+  },
+  label: {
+    marginBottom: 7,
+    marginStart: 10,
+  },
+  placeholderStyles: {
+    color: "grey",
+  },
+  dropdownGender: {
+    marginHorizontal: 10,
+    width: "50%",
+    marginBottom: 15,
+  },
+  centeredView: {
+    flex: 1,
+    width: "90%",
+    marginHorizontal: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 25,
+    borderColor: "#707070",
+    padding: 100,
+    height: "42%",
+    alignItems: "center",
+    shadowColor: "#000",
+    borderWidth: 2,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 10,
+  },
+  dropdownCompany: {
+    marginHorizontal: 10,
+    marginBottom: 15,
+  },
+  dropdown: {
+    borderColor: "#B7B7B7",
+    height: 50,
+  },
+  getStarted: {
+    backgroundColor: "#5188E3",
+    color: "white",
+    textAlign: "center",
+    marginHorizontal: 60,
+    paddingVertical: 15,
+    borderRadius: 50,
+    marginTop: 20,
+  },
+  logIn: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 10,
+  },
+  links: {
+    textAlign: "center",
+    textDecorationLine: "underline",
+    color: "#758580",
+  },
   container: {
     flex: 1,
-    position: "relative",
+    marginHorizontal: 16,
+    marginVertical: 32,
+  },
+  section: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  paragraph: {
+    fontSize: 15,
+  },
+  checkbox: {
+    margin: 8,
   },
   card: {
     flex: 0.8,

@@ -14,6 +14,7 @@ import { Inital_State } from "./app/Authreducer";
 import Jobmainselect from "./app/Pages/jobprovider/Jobtermchoose";
 import translations from "./app/Pages/translations";
 import Root from "./app/Rootstack/Rootstack";
+import PersonalJobProvider from "./app/Pages/personaljobprovider";
 import { doSomethingWithInput, changeLanguage } from "./app/util/util.js";
 export const LocalizationContext = createContext();
 export const AuthContext = createContext();
